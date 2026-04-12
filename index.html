@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ro" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ROePAS · Interfață Compactă</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="light"]{
+  --bg:#f4f6f9;--bg2:#ffffff;--bg3:#eaecf2;--bg4:#dde1ea;
+  --border:#d0d6e2;--border2:#b8c0d0;
+  --acc:#1a56db;--acc-r:26;--acc-g:86;--acc-b:219;
+  --hi:#0284c7;--danger:#dc2626;--ok:#16a34a;
+  --text:#111827;--muted:#4b5a72;--dim:#9aa5b8;
+  --shadow:rgba(0,0,0,.07);--shadow2:rgba(0,0,0,.12);
+  --logo-fg:#fff;
+  --r:6px;--mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#0d1117;--bg2:#161b24;--bg3:#1e2535;--bg4:#26304a;
+  --border:#1f2d42;--border2:#2b3f5c;
+  --acc:#4f9cf9;--acc-r:79;--acc-g:156;--acc-b:249;
+  --hi:#22d3ee;--danger:#f87171;--ok:#4ade80;
+  --text:#e2e8f4;--muted:#7a90b0;--dim:#3f5472;
+  --shadow:rgba(0,0,0,.4);--shadow2:rgba(0,0,0,.6);
+  --logo-fg:#000;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;background:var(--bg);color:var(--text);font-family:var(--sans);transition:background .2s,color .2s}
+body{min-height:100vh;max-width:960px;margin:0 auto;padding:0 12px 48px}
+
+/* ── HEADER ── */
+header{display:flex;align-items:center;gap:10px;padding:11px 0 9px;border-bottom:1px solid var(--border);margin-bottom:0;flex-wrap:wrap;position:sticky;top:0;background:var(--bg);z-index:200;transition:background .2s,border-color .2s}
+.logo{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0}
+.logo-mark{width:26px;height:26px;background:var(--acc);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:500;color:var(--logo-fg);letter-spacing:-.5px;transition:background .2s}
+.logo-text{font-weight:800;font-size:15px;color:var(--text);letter-spacing:-.3px}
+.logo-text span{color:var(--acc)}
+.search-wrap{flex:1;min-width:150px;position:relative}
+.search-wrap input{width:100%;padding:7px 12px 7px 30px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:.2s}
+.search-wrap input:focus{border-color:var(--acc);box-shadow:0 0 0 2px rgba(var(--acc-r),var(--acc-g),var(--acc-b),.14)}
+.search-wrap input::placeholder{color:var(--dim)}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:13px;pointer-events:none}
+.sr-drop{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);z-index:300;display:none;max-height:260px;overflow-y:auto;box-shadow:0 4px 16px var(--shadow2)}
+.sr-drop.show{display:block}
+.sr-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:12px;display:flex;align-items:center;gap:6px;transition:.1s}
+.sr-item:last-child{border-bottom:none}
+.sr-item:hover{background:var(--bg3);color:var(--acc)}
+.sr-badge{font-family:var(--mono);font-size:9px;color:var(--dim);padding:1px 5px;border:1px solid var(--border);border-radius:2px;flex-shrink:0}
+.hdr-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.lang-btn{font-family:var(--mono);font-size:10px;padding:3px 7px;border:1px solid var(--border2);border-radius:3px;background:transparent;color:var(--muted);cursor:pointer;transition:.15s}
+.lang-btn.on,.lang-btn:hover{border-color:var(--acc);color:var(--acc);background:rgba(var(--acc-r),var(--acc-g),var(--acc-b),.08)}
+.theme-pill{display:flex;border:1px solid var(--border2);border-radius:20px;overflow:hidden;cursor:pointer;flex-shrink:0}
+.theme-half{font-family:var(--mono);font-size:10px;padding:3px 9px;color:var(--muted);transition:.2s;user-select:none;line-height:1.3}
+.theme-half.on{background:var(--acc);color:var(--logo-fg);font-weight:600}
+.theme-half:not(.on):hover{color:var(--text)}
+.quine-btn{font-family:var(--mono);font-size:10px;padding:3px 9px;border:1px solid var(--border2);border-radius:3px;background:transparent;color:var(--dim);cursor:pointer;transition:.15s}
+.quine-btn:hover{border-color:var(--hi);color:var(--hi)}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto;scrollbar-width:none;background:var(--bg);position:sticky;top:47px;z-index:100;padding-top:2px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{font-family:var(--mono);font-size:11px;padding:7px 14px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;transition:.15s;background:transparent;border-top:none;border-left:none;border-right:none}
+.tab:hover{color:var(--text)}
+.tab.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:600}
+
+/* ── SECTION LABELS ── */
+.slabel{font-family:var(--mono);font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin:18px 0 9px;display:flex;align-items:center;gap:8px}
+.slabel::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── CARDS GRID ── */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:580px){.grid{grid-template-columns:repeat(2,1fr)}}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:13px;text-decoration:none;display:block;transition:.18s;position:relative;overflow:hidden}
+.card:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 4px 14px var(--shadow2)}
+.card-icon{font-size:19px;margin-bottom:7px;display:block}
+.card-title{font-weight:700;font-size:12px;margin-bottom:4px}
+.card.acc .card-title{color:var(--acc)}
+.card.hi  .card-title{color:var(--hi)}
+.card.dng .card-title{color:var(--danger)}
+.card-desc{font-family:var(--mono);font-size:10px;color:var(--muted);line-height:1.55}
+.card-arr{position:absolute;bottom:8px;right:10px;color:var(--dim);font-size:11px;transition:.18s}
+.card:hover .card-arr{color:var(--acc);transform:translateX(2px)}
+
+/* ── FINDER ── */
+.finder{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:11px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.finder select{flex:1;min-width:130px;padding:6px 8px;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:11px;outline:none;cursor:pointer}
+.finder select:focus{border-color:var(--acc)}
+.finder-btn{padding:6px 13px;background:var(--acc);color:var(--logo-fg);border:none;border-radius:4px;font-family:var(--sans);font-weight:700;font-size:11px;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block;transition:opacity .15s}
+.finder-btn:hover{opacity:.85}
+
+/* ── LINK GRID ── */
+.lgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
+@media(max-width:400px){.lgrid{grid-template-columns:1fr}}
+.litem{display:flex;align-items:center;gap:7px;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;text-decoration:none;color:var(--muted);font-family:var(--mono);font-size:11px;transition:.15s}
+.litem:hover{border-color:var(--border2);color:var(--text);background:var(--bg3)}
+.ldot{width:5px;height:5px;border-radius:50%;background:var(--dim);flex-shrink:0;transition:background .15s}
+.litem:hover .ldot{background:var(--acc)}
+
+/* ── INST LIST ── */
+.ilist{display:flex;flex-direction:column;gap:4px}
+.iitem{display:flex;align-items:center;gap:9px;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;text-decoration:none;color:var(--text);font-size:12px;transition:.15s}
+.iitem:hover{border-color:var(--border2);background:var(--bg3);padding-left:14px}
+.inum{font-family:var(--mono);font-size:9px;color:var(--dim);width:15px;flex-shrink:0}
+.iarr{margin-left:auto;color:var(--dim);font-size:11px}
+
+/* ── NEWS ── */
+.nlist{display:flex;flex-direction:column;gap:6px}
+.nitem{padding:10px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;text-decoration:none;display:block;transition:.15s}
+.nitem:hover{border-color:var(--border2);background:var(--bg3)}
+.ndate{font-family:var(--mono);font-size:9px;color:var(--dim);margin-bottom:4px}
+.ntitle{font-size:12px;color:var(--text);font-weight:600;line-height:1.4}
+
+/* ── FAQ ── */
+.faq-list{display:flex;flex-direction:column;gap:4px}
+.faq-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .15s}
+.faq-item.open{border-color:var(--border2)}
+.faq-q{padding:11px 38px 11px 13px;cursor:pointer;font-weight:600;font-size:12px;position:relative;user-select:none;line-height:1.4;transition:background .15s}
+.faq-q:hover{background:var(--bg3)}
+.faq-q::after{content:'＋';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--dim);transition:.2s;font-weight:400}
+.faq-item.open .faq-q::after{content:'－';color:var(--acc)}
+.faq-body{display:none;padding:0 13px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.7;border-top:1px solid var(--border)}
+.faq-body.show{display:block}
+.faq-body ol{padding-left:16px;margin:6px 0}
+.faq-body li{margin-bottom:3px}
+.faq-body strong{color:var(--text);font-weight:600}
+.faq-body a{color:var(--acc);text-decoration:none}
+.faq-body a:hover{text-decoration:underline}
+.faq-filter{width:100%;padding:8px 12px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--mono);font-size:12px;outline:none;margin-bottom:10px;transition:.2s}
+.faq-filter:focus{border-color:var(--acc)}
+
+/* ── GUIDES ── */
+.guide-list{display:flex;flex-direction:column;gap:8px}
+.guide-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;gap:12px;align-items:flex-start;transition:.15s}
+.guide-card:hover{border-color:var(--border2);background:var(--bg3)}
+.guide-icon{font-size:24px;flex-shrink:0;margin-top:2px}
+.guide-body{}
+.guide-title{font-weight:700;font-size:13px;margin-bottom:5px;color:var(--acc)}
+.guide-desc{font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.6}
+.guide-links{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.guide-link{font-family:var(--mono);font-size:10px;padding:3px 10px;border:1px solid var(--border2);border-radius:3px;text-decoration:none;color:var(--muted);transition:.15s}
+.guide-link:hover{border-color:var(--acc);color:var(--acc)}
+
+/* ── ABOUT / SDG ── */
+.prose{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;font-family:var(--mono);font-size:12px;color:var(--muted);line-height:1.75}
+.prose h2{font-family:var(--sans);font-size:15px;font-weight:700;color:var(--text);margin-bottom:10px}
+.prose h3{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--acc);margin:14px 0 6px}
+.prose p{margin-bottom:10px}
+.prose p:last-child{margin-bottom:0}
+.prose a{color:var(--acc);text-decoration:none}
+.prose a:hover{text-decoration:underline}
+.prose ul{padding-left:16px;margin:6px 0}
+.prose li{margin-bottom:4px}
+.prose strong{color:var(--text);font-weight:600}
+
+/* ── INFO BOX ── */
+.info-box{display:flex;align-items:flex-start;gap:10px;background:rgba(var(--acc-r),var(--acc-g),var(--acc-b),.07);border:1px solid rgba(var(--acc-r),var(--acc-g),var(--acc-b),.2);border-radius:var(--r);padding:11px 13px;margin-bottom:14px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.6}
+.info-box-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+
+/* ── FOOTER ── */
+footer{margin-top:32px;padding-top:12px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-start}
+.ft-col{}
+.ft-head{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--dim);margin-bottom:8px}
+.ft-links{display:flex;flex-direction:column;gap:4px}
+.ft-links a{font-family:var(--mono);font-size:10px;color:var(--dim);text-decoration:none;transition:.12s}
+.ft-links a:hover{color:var(--acc)}
+.ft-copy{width:100%;padding-top:10px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--dim);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.eu-badge{font-family:var(--mono);font-size:9px;color:var(--dim);border:1px solid var(--border);border-radius:3px;padding:2px 6px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:18px;right:18px;background:var(--bg2);border:1px solid var(--acc);border-radius:4px;padding:9px 13px;font-family:var(--mono);font-size:11px;color:var(--acc);z-index:9999;opacity:0;transform:translateY(8px);transition:.3s;pointer-events:none;box-shadow:0 4px 16px var(--shadow2)}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* ── HIDDEN SECTION ── */
+.section{display:none}
+.section.on{display:block}
+</style>
+</head>
+<body>
+
+<script id="__DATA__" type="application/json">
+{
+  "version": "2.0.0",
+  "activeTheme": "light",
+  "lang": "ro",
+  "scrapedAt": "2026-03-27",
+
+  "categories": [
+    {"icon":"👤","color":"acc","label":{"ro":"Cetățeni — Național","en":"Citizens — National"},"desc":{"ro":"Acte, declarații, proceduri pentru persoane fizice","en":"Documents, declarations, procedures for individuals"},"url":"https://roepas.ro/nationale-cetateni"},
+    {"icon":"🏢","color":"hi", "label":{"ro":"Companii — Național","en":"Companies — National"},"desc":{"ro":"Autorizații, licențe, raportări pentru mediul de afaceri","en":"Authorizations, licenses, reporting for businesses"},"url":"https://roepas.ro/nationale-companii"},
+    {"icon":"🏛","color":"dng","label":{"ro":"Instituții — Național","en":"Institutions — National"},"desc":{"ro":"Colaborare interinstituțională și proceduri administrative","en":"Interinstitutional collaboration and admin procedures"},"url":"https://roepas.ro/nationale-institutii"},
+    {"icon":"🌍","color":"acc","label":{"ro":"Cetățeni — Transfrontalier","en":"Citizens — Cross-Border"},"desc":{"ro":"Servicii UE pentru persoane fizice și rezidenți europeni","en":"EU services for individuals and European residents"},"url":"https://roepas.ro/transfrontaliere-cetateni"},
+    {"icon":"🌐","color":"hi", "label":{"ro":"Companii — Transfrontalier","en":"Companies — Cross-Border"},"desc":{"ro":"Proceduri europene pentru activități economice transfrontaliere","en":"European procedures for cross-border economic activities"},"url":"https://roepas.ro/transfrontaliere-companii"},
+    {"icon":"📋","color":"dng","label":{"ro":"Toate Serviciile","en":"All Services"},"desc":{"ro":"Catalog complet de servicii publice disponibile","en":"Complete catalog of available public services"},"url":"https://roepas.ro/toate-serviciile"}
+  ],
+
+  "quicklinks": [
+    {"label":{"ro":"Pagini informative — Cetățeni","en":"Info pages — Citizens"},"url":"https://roepas.ro/pagini-informative-cetatean"},
+    {"label":{"ro":"Pagini informative — Companii","en":"Info pages — Companies"},"url":"https://roepas.ro/pagini-informative-companii"},
+    {"label":{"ro":"Asistență și soluționare probleme","en":"Assistance & Problem Solving"},"url":"https://roepas.ro/servicii-de-asistenta-si-de-solutionare-a-problemelor"},
+    {"label":{"ro":"Ghiduri de utilizare","en":"Usage Guides"},"url":"https://roepas.ro/ghiduri"},
+    {"label":{"ro":"Declarații ANAF","en":"ANAF Declarations"},"url":"https://decl.anaf.mfinante.gov.ro/"},
+    {"label":{"ro":"EU Single Digital Gateway","en":"EU Single Digital Gateway"},"url":"https://roepas.ro/single-digital-gateway"},
+    {"label":{"ro":"Autentificare ROeID","en":"ROeID Login"},"url":"https://www.roeid.ro/"},
+    {"label":{"ro":"Harta site","en":"Sitemap"},"url":"https://roepas.ro/harta-site-ului"}
+  ],
+
+  "institutions": [
+    {"name":"Inspecția Muncii","url":"https://roepas.ro/ro/e/templateinstitutiev4/549157/11062059"},
+    {"name":"DGTIP Sector 3","url":"https://roepas.ro/ro/e/templateinstitutiev4/549157/11069089"},
+    {"name":"DGTIP Sector 6","url":"https://roepas.ro/ro/e/templateinstitutiev4/549157/11072365"},
+    {"name":"Direcția Generală Turism — MEAT","url":"https://roepas.ro/ro/e/templateinstitutiev4/549157/11073043"},
+    {"name":"Autoritatea pentru Digitalizarea României","url":"https://roepas.ro/ro/e/templateinstitutiev4/549157/11062189"}
+  ],
+
+  "news": [
+    {"date":"12 mar 2026","title":{"ro":"Instituțiile publice sunt invitate să actualizeze procedurile pe SDG până la 30 iunie 2026","en":"Public institutions invited to update procedures on SDG by June 30, 2026"},"url":"https://roepas.ro/e/articol/28931/9656859"},
+    {"date":"12 mar 2026","title":{"ro":"Continuăm instruirea la nivel național — sesiuni noi ROePAS pentru instituții","en":"National-level training continues — new ROePAS sessions for institutions"},"url":"https://roepas.ro/e/articol/28931/9620811"},
+    {"date":"12 mar 2026","title":{"ro":"ROePAS, noua platformă de servicii publice digitale, a fost lansată în producție","en":"ROePAS, the new digital public services platform, has launched to production"},"url":"https://roepas.ro/e/articol/28931/9612121"}
+  ],
+
+  "guides": [
+    {
+      "icon":"👥",
+      "title":{"ro":"Ghid utilizare — Cetățeni și Companii","en":"Usage Guide — Citizens & Companies"},
+      "desc":{"ro":"Ghid destinat persoanelor fizice și juridice: acces și gestionare profil, vizualizare și urmărire cereri, tichete de suport.","en":"Guide for individuals and legal entities: profile access & management, request tracking, support tickets."},
+      "pdfUrl":"https://roepas.ro/ghiduri"
+    },
+    {
+      "icon":"🏛",
+      "title":{"ro":"Ghid utilizare — Instituție","en":"Usage Guide — Institution"},
+      "desc":{"ro":"Ghid pentru personalul din instituțiile publice: autentificare, gestionare coadă cereri, verificare documente, comunicare cu solicitantul, actualizare statusuri.","en":"Guide for public institution staff: sign-in, request queue management, document review, communicating with applicants, updating statuses."},
+      "pdfUrl":"https://roepas.ro/ghiduri"
+    },
+    {
+      "icon":"📁",
+      "title":{"ro":"Ghid DMS — Sistemul de management al documentelor","en":"Usage Guide — DMS (Document Management System)"},
+      "desc":{"ro":"Ghid practic al fluxurilor operaționale din DMS: registrul intrări, fluxul intern de documente (rutare, revizuire, semnare) și registrul ieșiri.","en":"Practical guide to DMS operational workflows: incoming register, internal document flow (routing, reviews/approvals, drafting, signing), and outgoing register."},
+      "pdfUrl":"https://roepas.ro/ghiduri"
+    },
+    {
+      "icon":"🔗",
+      "title":{"ro":"Ghid tehnic — Integrare ROePAS cu instituții publice","en":"Technical Guide — ROePAS Integration with Public Institutions"},
+      "desc":{"ro":"Documentație tehnică pentru instituțiile care vor să integreze sistemele IT existente cu portalul ROePAS: cerințe de conectivitate, fluxuri de date, standarde de interoperabilitate, implementare pas cu pas.","en":"Technical documentation for institutions integrating existing IT systems with ROePAS: connectivity requirements, data flows, interoperability standards, step-by-step implementation."},
+      "pdfUrl":"https://roepas.ro/ghiduri"
+    }
+  ],
+
+  "faq": [
+    {
+      "q":{"ro":"Ce servicii oferă ROePAS?","en":"What services does ROePAS provide?"},
+      "a":{"ro":"ROePAS este o platformă digitală ce oferă acces la proceduri online și offline pentru cetățeni și companii, informații despre drepturi în piața internă europeană și servicii de asistență. Prin ROePAS poți: identifica proceduri administrative pe domenii de activitate; consulta condițiile, documentele necesare și pașii aferenti; depune cereri online (unde procedura permite); urmări statusul cererilor; descărca documente emise de instituții.","en":"ROePAS is a digital platform providing access to online and offline procedures for citizens and companies, information about EU internal market rights, and assistance services. Through ROePAS you can: identify administrative procedures by field; consult conditions, required documents and steps; submit requests online where the procedure allows; track request status; download documents issued by institutions."}
+    },
+    {
+      "q":{"ro":"Cine poate folosi portalul ROePAS?","en":"Who can use the ROePAS portal?"},
+      "a":{"ro":"ROePAS este destinat tuturor: persoane fizice (cetățeni care accesează servicii publice online), entități juridice (companii, ONG-uri, alte organizații) și reprezentanți ai instituțiilor publice (funcționari și angajați ai administrației publice care procesează cereri).","en":"ROePAS is intended for everyone: individuals (citizens accessing online public services), legal entities (companies, NGOs, other organizations), and representatives of public institutions (officials and public administration employees who process requests)."}
+    },
+    {
+      "q":{"ro":"Cum mă autentific pe platformă?","en":"How can I authenticate on the platform?"},
+      "a":{"ro":"Cetățean român: dacă ai deja o identitate digitală ROeID sau eIDAS, te poți autentifica direct. Dacă nu ai ROeID, îl poți obține pe www.roeid.ro. Cetățean UE: autentificare cu eIDAS. Utilizatori instituții publice: autentificare cu doi factori (email + parolă) pe baza invitației primite de la administratorul instituției. Utilizatori companii: autentificare cu ROeID.","en":"Romanian citizen: if you already have a ROeID or eIDAS digital identity, you can authenticate directly. If you don't have ROeID, obtain it at www.roeid.ro. EU citizen: authenticate with eIDAS. Public institution users: two-factor authentication (email + password) based on invitation from institution administrator. Company users: authenticate with ROeID."}
+    },
+    {
+      "q":{"ro":"Cum creez un cont pentru o entitate juridică?","en":"How can I create a legal entity account?"},
+      "a":{"ro":"Conturile entităților juridice sunt create automat după autentificarea cu ROeID. Pe baza CNP-ului, sistemul interoghează baza de date ONRC și, dacă ești administrator legal al unei companii, contul companiei se creează automat. Pentru entități neînregistrate la ONRC (ONG, asociații etc.), autentifică-te ca cetățean, apasă 'Adaugă entitate juridică' și completează formularul.","en":"Legal entity accounts are created automatically after ROeID authentication. Based on the CNP, the system queries the ONRC database, and if you are the legal administrator of a company, the company account is created automatically. For entities not registered with ONRC (NGOs, associations, etc.), authenticate as a citizen, click 'Add legal entity' and fill in the form."}
+    },
+    {
+      "q":{"ro":"Pot gestiona mai multe companii din același cont?","en":"Can I manage multiple companies from the same account?"},
+      "a":{"ro":"Da, platforma ROePAS permite unui singur utilizator să gestioneze mai multe profiluri de entități juridice. Identificarea automată se face prin ONRC. Poți adăuga manual entități fără ONRC (ONG, asociații, companii străine) folosind funcția 'Adaugă entitate juridică'. Trecerea între profiluri se face din meniul de profil, fără conturi de email separate.","en":"Yes, the ROePAS platform allows a single user to manage multiple legal entity profiles. Automatic identification is done through ONRC. You can manually add entities without ONRC (NGOs, associations, foreign companies) using 'Add legal entity'. Switching between profiles is done from the profile menu, without separate email accounts."}
+    },
+    {
+      "q":{"ro":"Cum depun o cerere prin ROePAS?","en":"How is a request submitted through ROePAS?"},
+      "a":{"ro":"Identifică procedura potrivită (tip procedură, județ/localitate, calitate solicitant). Selectează procedura și apasă 'Inițiază cerere'. Completează formularul afișat. Autentificarea este obligatorie. După depunere, cererea va fi disponibilă în secțiunea 'Cereri depuse', unde poți urmări statusul, descărca documente finale și verifica mesaje.","en":"Identify the appropriate procedure (procedure type, county/locality, applicant status). Select the procedure and click 'Start request'. Fill in the displayed form. Authentication is mandatory. After submission, the request will be available in 'Submitted requests', where you can track status, download final documents, and check messages."}
+    },
+    {
+      "q":{"ro":"Care sunt principalele statusuri ale unei cereri?","en":"What are the main statuses of a request?"},
+      "a":{"ro":"Inițiată — solicitantul depune cererea; Preluată — instituția preia cererea și îi atribuie număr de înregistrare; În așteptare — operatorul solicită clarificări; Clarificări depuse — solicitantul trebuie să depună clarificări; Plată necesară — taxa de serviciu este datorată; Plată efectuată — plata a fost finalizată cu succes; Rezolvată — cererea a fost soluționată; Închisă fără soluție/arhivată — cererea a fost închisă din motive justificate; Expirată — cererea nu a fost preluată de operator; Anulată — solicitantul se retrage.","en":"Initiated — applicant submits the request; Taken over — institution takes over and assigns registration number; On hold — operator requests clarifications; Clarifications submitted — applicant must submit clarifications; Payment required — service fee is due; Payment completed — payment successfully completed; Resolved — request resolved; Closed without resolution/archived — closed for justified reasons; Expired — not taken over by operator; Cancelled — applicant withdraws."}
+    },
+    {
+      "q":{"ro":"Este obligatorie semnătura digitală?","en":"Is a digital signature mandatory?"},
+      "a":{"ro":"Depinde de configurația specifică a procedurii stabilite de instituția primitoare. Pentru proceduri complet digitale: semnătura electronică calificată este obligatorie. Când inițiezi o cerere, câmpurile de încărcare a documentelor vor indica clar dacă fișierul 'Necesită semnătură'.","en":"It depends on the specific configuration of the procedure set by the receiving institution. For fully digital procedures: a qualified electronic signature is mandatory. When initiating a request, document upload fields will clearly indicate if the file 'Requires signature'."}
+    },
+    {
+      "q":{"ro":"Ce formate de fișiere sunt acceptate pentru încărcarea documentelor?","en":"What file formats are allowed for document upload?"},
+      "a":{"ro":"Platforma acceptă: .pdf (formatul recomandat); .p7s, .p7m (documente semnate electronic); .jpg, .jpeg, .png (fotografii); .zip (grupare de fișiere); formulare inteligente (editate direct în portal). Semnăturile PDF de tip PAdES sunt acceptate dacă sunt înglobate în fișier.","en":"The platform accepts: .pdf (recommended format); .p7s, .p7m (electronically signed); .jpg, .jpeg, .png (photos); .zip (grouped files); smart forms (edited directly in the portal). PAdES PDF signatures are accepted if embedded in the file."}
+    },
+    {
+      "q":{"ro":"Cum verific dacă semnătura mea digitală este validă în ROePAS?","en":"How can I check whether my digital signature is valid in ROePAS?"},
+      "a":{"ro":"ROePAS include un modul de validare automată integrat în procesul de încărcare: la atașarea unui document semnat (.p7s), platforma verifică automat dacă certificatul este emis de un prestator acreditat din Lista de Încredere Europeană. Dacă semnătura este validă, sistemul afișează o bifă verde. Dacă este invalidă, primești imediat un mesaj de eroare.","en":"ROePAS includes an automatic real-time validation module integrated into the upload process: when attaching a signed document (.p7s), the platform automatically checks if the certificate is issued by an accredited provider in the EU Trusted List. If valid, a green check mark is displayed. If invalid, an error message is shown immediately."}
+    },
+    {
+      "q":{"ro":"Care sunt furnizorii de certificate digitale acceptați în România?","en":"Which qualified trust service providers accredited in Romania are accepted in ROePAS?"},
+      "a":{"ro":"Principalii furnizori naționali: Trans Sped S.R.L. (transsped.ro); DigiSign S.A. (digisign.ro); certSIGN S.A. (certsign.ro); Alfa Trust Certification S.A. (alfasign.ro); Centrul de Calcul S.A. (certdigital.ro); Zipper Services S.R.L. (ezipper.ro); Serviciul de Telecomunicații Speciale (ca.stsisp.ro). Sunt acceptați și furnizori europeni calificați (InfoCert, D-Trust, GlobalSign etc.).","en":"Main national providers: Trans Sped S.R.L. (transsped.ro); DigiSign S.A. (digisign.ro); certSIGN S.A. (certsign.ro); Alfa Trust Certification S.A. (alfasign.ro); Centrul de Calcul S.A. (certdigital.ro); Zipper Services S.R.L. (ezipper.ro); Special Telecommunications Service (ca.stsisp.ro). European qualified providers (InfoCert, D-Trust, GlobalSign, etc.) are also accepted."}
+    },
+    {
+      "q":{"ro":"Cum adaug/elimin administratori, operatori și funcționari?","en":"How can I add/remove administrators, operators, and officials?"},
+      "a":{"ro":"Adăugare: Autentifică-te ca administrator al instituției → Secțiunea Utilizatori → 'Invită utilizator nou' → completează detaliile → trimite invitația. Dezactivare: Autentifică-te ca administrator → Utilizatori → deschide contul → 'Dezactivează utilizator' → introdu justificarea → confirmă. Verifică că statusul utilizatorului este Inactiv.","en":"Add: Authenticate as institution administrator → Users section → 'Invite new user' → fill in details → send invitation. Deactivate: Authenticate as administrator → Users → open account → 'Deactivate user' → enter justification → confirm. Verify the user's status is Inactive."}
+    },
+    {
+      "q":{"ro":"Ce roluri pot fi atribuite utilizatorilor dintr-o instituție?","en":"What roles can be assigned to institution users?"},
+      "a":{"ro":"Administrator instituție — invită utilizatori și atribuie roluri; Administratori portal — configurează proceduri; Operator — preia cereri în Backoffice, verifică documente, solicită clarificări, încarcă documente finale; Funcționar al instituției — depune cereri în numele instituției; Operator suport — răspunde la tichete. În DMS: Registrator, Redactor, Revizor, Aprobator.","en":"Institution administrator — invites users and assigns roles; Portal administrators — configure procedures; Operator — takes over requests in Backoffice, verifies documents, requests clarifications, uploads final documents; Institution official — submits requests on behalf of institution; Support operator — responds to tickets. In DMS: Registrar, Drafting officer, Reviewer, Approver."}
+    },
+    {
+      "q":{"ro":"Cum accesează administratorii migrați din vechiul portal PCUe?","en":"How can administrators migrated from the old PCUe portal access their accounts?"},
+      "a":{"ro":"1. Accesează roepas.ro și apasă 'Autentifică-te'. 2. Selectează 'Autentificare utilizator instituție publică' (2FA). 3. Selectează 'Schimbare parolă'. 4. Introdu adresa de email înregistrată și în PCUe. 5. Apasă 'Resetare'. 6. Verifică emailul primit și urmează instrucțiunile. La viitoarele accesări, folosește opțiunea 'Autentificare utilizator instituție publică'.","en":"1. Go to roepas.ro and click 'Log in'. 2. Select 'Public institution user login' (2FA). 3. Select 'Change password'. 4. Enter the email address also registered in PCUe. 5. Click 'Reset'. 6. Check the email received and follow instructions. For future access, use the 'Public institution user login' option."}
+    },
+    {
+      "q":{"ro":"Cum configurez o nouă procedură în portal?","en":"How is a new procedure configured in the portal?"},
+      "a":{"ro":"Administratorul instituției accesează meniul 'Proceduri' și completează succesiv secțiunile: informații generale (descriere), detalii procedură, persoane eligibile, documente necesare, documente finale, taxe, termene, acte normative, căi de atac, informații suplimentare, servicii de asistență (dacă e cazul), previzualizare și termeni de publicare.","en":"The institution administrator accesses the 'Procedures' menu and successively completes: general information (description), procedure details, eligible persons, required documents, final documents, fees, deadlines, legal acts, means of appeal, additional information, assistance services (if applicable), preview, and publication terms."}
+    },
+    {
+      "q":{"ro":"Cum se configurează documentele necesare și documentele finale?","en":"How are the required documents and final documents configured?"},
+      "a":{"ro":"Pentru fiecare document se definesc: numele, tipul (formular inteligent, formular standard, document scanat), dacă este obligatoriu, dacă necesită semnătură electronică și dacă poate fi obținut prin OOTS. Documentele finale sunt cele transmise cetățeanului la finalizarea procedurii și pot avea un șablon standard și semnătură obligatorie.","en":"For each document, the following are defined: name, type (smart form, standard form, scanned document), whether mandatory, whether an electronic signature is required, and whether it can be obtained through OOTS. Final documents are those transmitted to the citizen upon completion and may have a standard template and mandatory signature."}
+    },
+    {
+      "q":{"ro":"Cum se configurează taxele fixe și variabile?","en":"How are fixed fees and variable fees configured?"},
+      "a":{"ro":"Taxă fixă: se stabilesc suma și modalitatea de plată (transfer bancar sau Ghișeul.ro, dacă instituția este înscrisă în SNEP). Taxă variabilă: suma este comunicată ulterior de operator, iar cererea intră în statusul 'Plată necesară' până la efectuarea plății.","en":"Fixed fee: the amount and payment method are established (bank transfer or Ghișeul.ro, if the institution is enrolled in the National Electronic Online Payment System). Variable fee: the amount is communicated later by the operator, and the request enters 'Payment required' status until payment is made."}
+    },
+    {
+      "q":{"ro":"Ce este OOTS și cum funcționează?","en":"What is OOTS and how does it work?"},
+      "a":{"ro":"OOTS (Once Only Technical System) este un sistem european care elimină necesitatea de a prezenta aceleași documente mai multor instituții. Dacă un document a fost deja depus la o instituție publică dintr-un alt stat UE, poate fi recuperat automat prin portal, fără ca utilizatorul să îl mai depună din nou. Dacă un document poate fi obținut prin OOTS, opțiunea se activează și se selectează cerința UE corespunzătoare.","en":"OOTS (Once Only Technical System) is a European system that eliminates the need to present the same documents to multiple institutions. If a document has already been submitted to a public institution in another EU member state, it can be automatically retrieved through the portal. When a document can be obtained through OOTS, the option is enabled and the corresponding EU requirement is selected."}
+    },
+    {
+      "q":{"ro":"Ce moduri de operare sunt disponibile pentru instituții?","en":"What are the differences between the operating modes available to institutions?"},
+      "a":{"ro":"Exclusiv prin portal: depunerea și procesarea cererilor se realizează integral în portalul ROePAS, prin modulul Backoffice. Integrare cu sistemul IT al instituției: cererea este inițiată în ROePAS, iar procesarea are loc în sistemul propriu al instituției. Exclusiv în portalul instituției: ROePAS oferă informații, iar cetățeanul este redirecționat spre portalul instituției pentru inițierea cererii.","en":"Exclusively through the portal: request submission and processing are done entirely in ROePAS through the Backoffice module. Integration with institution's IT system: the request is initiated in ROePAS while processing takes place in the institution's own system. Exclusively in the institution's portal: ROePAS provides information while the citizen is redirected to the institution's portal to initiate the request."}
+    },
+    {
+      "q":{"ro":"Cum funcționează departamentele în cadrul instituției?","en":"What does the configuration of departments involve?"},
+      "a":{"ro":"Departamentele reflectă structura organizatorică a instituției și permit atribuirea automată a cererilor funcționarilor responsabili. Fără configurarea departamentelor, cererile nu pot fi rutate corect. Configurarea departamentelor este necesară înainte de publicarea procedurilor.","en":"Departments reflect the organizational structure of the institution and allow requests to be automatically assigned to responsible officials. Without configuring departments, requests cannot be routed properly. Department configuration is necessary before publishing procedures."}
+    },
+    {
+      "q":{"ro":"Ce s-a întâmplat cu cererile existente din PCUe (vechiul sistem)?","en":"What happens to existing requests from PCUe (the old system)?"},
+      "a":{"ro":"Toate cererile din vechiul sistem PCUe au fost migrate în noul portal. După autentificare, cererile sunt afișate automat pe pagina 'Cereri depuse', identificate pe baza CNP-ului utilizatorului.","en":"All requests from the old PCUe system have been migrated to the new portal. After authentication, requests are automatically displayed on the 'Submitted requests' page, identified based on the user's CNP."}
+    },
+    {
+      "q":{"ro":"Ce browser este recomandat pentru utilizarea optimă a ROePAS?","en":"Which browser is recommended for the optimal use of ROePAS?"},
+      "a":{"ro":"Se recomandă: Google Chrome (ultima versiune), Mozilla Firefox (ultima versiune), Microsoft Edge (ultima versiune). Pentru funcționarea corectă a tuturor componentelor (autentificare, semnătură electronică, încărcare documente): folosiți ultima versiune a browserului; permiteți ferestrele pop-up pentru domeniul ROePAS; ștergeți cache-ul și cookie-urile dacă apar erori neobișnuite.","en":"Recommended: Google Chrome (latest version), Mozilla Firefox (latest version), Microsoft Edge (latest version). For all components to work properly (authentication, electronic signature, document upload): use the latest browser version; allow pop-up windows for the ROePAS domain; clear cache and cookies if unusual errors occur."}
+    },
+    {
+      "q":{"ro":"Ce fac dacă nu am primit documentul solicitat sau am primit un document incorect?","en":"What should I do if I have not received the requested document or if I receive an incorrect document?"},
+      "a":{"ro":"1. Verifică contul ROePAS: secțiunea 'Cereri depuse', documentele primite. 2. Verifică și folderul Spam din email. 3. Deschide un tichet de suport: 'Tichete de suport depuse' → 'Adaugă tichet de suport' → descrie situația și atașează capturi de ecran. 4. Contactează instituția responsabilă prin live chat, email sau telefon.","en":"1. Check your ROePAS account: 'Submitted requests' section, received documents. 2. Also check your email Spam folder. 3. Open a support ticket: 'Submitted support tickets' → 'Add support ticket' → describe the situation and attach screenshots. 4. Contact the responsible institution via live chat, email, or phone."}
+    },
+    {
+      "q":{"ro":"Cum trimit și primesc răspunsuri la tichete de suport?","en":"How are support ticket responses sent and received in ROePAS?"},
+      "a":{"ro":"Creare tichet: secțiunea 'Suport' sau pagina de contact, sau după autentificare din 'Tichete de suport depuse' → 'Adaugă tichet'. Alege categoria, descrie situația, atașează capturi de ecran. Dacă ești autentificat: răspunsul apare în contul tău, secțiunea 'Tichete de suport depuse' (și eventual prin email). Dacă nu ești autentificat: răspunsul se trimite pe emailul furnizat.","en":"Create a ticket: 'Support' section or contact page, or after authentication from 'Submitted support tickets' → 'Add ticket'. Choose category, describe situation, attach screenshots. If authenticated: response appears in your account in 'Submitted support tickets' (and possibly by email). If unauthenticated: response is sent to the email you provided."}
+    },
+    {
+      "q":{"ro":"Există un program de helpdesk pentru ROePAS?","en":"Is there a help-desk schedule for ROePAS?"},
+      "a":{"ro":"Canalele de comunicare disponibile sunt: Live chat, Call center, Tichete de suport. Programul și metodele de suport variază în funcție de canalul de comunicare utilizat și de instituția implicată. Platforma ROePAS include și un asistent virtual (chatbot) care te ghidează spre informațiile de care ai nevoie.","en":"Available communication channels: Live chat, Call center, Support tickets. The schedule and support methods vary depending on the communication channel used and the institution concerned. The ROePAS platform also includes a virtual assistant (chatbot) to guide you to the information you need."}
+    },
+    {
+      "q":{"ro":"Cum mă înscriu ca instituție în ROePAS?","en":"How can I enroll an institution?"},
+      "a":{"ro":"Reprezentantul instituției se autentifică cu ROeID, accesează pagina 'Instituții' și selectează 'Înrolare instituție'. Se completează formularul de înrolare și se trimite cererea la administratorul portalului (ADR). Cererea va fi revizuită, iar după aprobare, profilul instituției va fi disponibil. Nota: dovada calității de reprezentant și formularul de înrolare semnat sunt obligatorii.","en":"The institution's representative authenticates with ROeID, accesses the 'Institutions' page, and selects 'Institution enrollment'. The enrollment form is completed and the request is submitted to the portal administrator (ADR). The request will be reviewed, and after approval, the institution profile will be available. Note: proof of representative status and signed enrollment form are required."}
+    },
+    {
+      "q":{"ro":"Ce informații suplimentare sunt disponibile prin ROePAS?","en":"Do you need additional information about using ROePAS?"},
+      "a":{"ro":"ROePAS oferă: ghiduri de utilizare (separate pe tipuri de utilizator); tutoriale video; suport tehnic prin sistem de ticketing; chatbot. Ghidurile oficiale sunt disponibile la roepas.ro/ghiduri. Secțiunea 'Contact' permite deschiderea unui tichet pentru suport tehnic: roepas.ro/public/contact.","en":"ROePAS offers: user guides (separate by user type); video tutorials; technical support via ticketing system; chatbot. Official guides are available at roepas.ro/ghiduri. The 'Contact' section allows opening a ticket for technical support: roepas.ro/public/contact."}
+    }
+  ],
+
+  "about": {
+    "ro": "ROePAS este un punct unic de acces online, dedicat cetățenilor, companiilor și instituțiilor publice, facilitând interacțiunea digitală cu serviciile oferite de autorități. Utilizatorii pot vizualiza și accesa rapid informații despre diverse servicii publice, fără a fi necesare deplasări la ghișee.\n\nPortalul simplifică procesele administrative prin posibilitatea inițierii de cereri online la instituțiile statului. Cetățenii și companiile pot iniția cereri pentru servicii publice și pot urmări progresul soluționării lor. De asemenea, portalul permite depunerea cererilor 24/7.\n\nO caracteristică importantă a portalului este integrarea cu Once Only Technical System (OOTS), o inițiativă la nivel UE care elimină necesitatea de a prezenta aceleași documente la mai multe instituții. Accesul la portal se realizează în mod securizat prin autentificare electronică validată, fie prin sistemul național ROeID, fie prin identificarea electronică transfrontalieră eIDAS.",
+    "en": "ROePAS is a single online access point dedicated to citizens, companies and public institutions, facilitating digital interaction with services offered by authorities. Users can view and quickly access information about various public services, without needing to travel to service counters.\n\nThe portal simplifies administrative processes by allowing the initiation of online requests to state institutions. Citizens and companies can initiate requests for public services and track the progress of their resolution. The portal allows submission of requests 24/7.\n\nA key feature is integration with the Once Only Technical System (OOTS), an EU initiative that eliminates the need to present the same documents to multiple institutions. Access is done securely through validated electronic authentication — either through the national ROeID system or through cross-border eIDAS electronic identification."
+  },
+
+  "sdg": {
+    "what": {
+      "ro": "EU Single Digital Gateway, accesibil prin portalul Your Europe (europa.eu/youreurope), este o platformă online cuprinzătoare care oferă cetățenilor și companiilor acces facil la informații, asistență și servicii de soluționare a problemelor legate de drepturile și normele UE.",
+      "en": "The EU Single Digital Gateway, accessible through the Your Europe portal (europa.eu/youreurope), is a comprehensive online platform providing citizens and businesses with easy access to information, assistance, and problem-solving services related to EU rights and rules."
+    },
+    "features": [
+      {
+        "title": {"ro": "Servicii de informare","en": "Information Services"},
+        "desc": {"ro": "Informații actualizate despre drepturile, normele și procedurile UE pentru diverse situații de viață și situații de afaceri.","en": "Up-to-date information about EU rights, rules, and procedures across various life events and business situations."}
+      },
+      {
+        "title": {"ro": "Servicii de asistență","en": "Assistance Services"},
+        "desc": {"ro": "Conectarea utilizatorilor cu serviciile naționale de asistență și punctele de contact — autorități locale, agenții specializate și rețele de sprijin.","en": "Connecting users with national assistance services and contact points — local authorities, specialized agencies, and support networks."}
+      },
+      {
+        "title": {"ro": "Servicii de soluționare a problemelor","en": "Problem-Solving Services"},
+        "desc": {"ro": "Acces la mecanisme alternative de soluționare a litigiilor, proceduri de reclamații și servicii de mediere pentru situații transfrontaliere.","en": "Access to alternative dispute resolution mechanisms, complaint procedures, and mediation services for cross-border situations."}
+      },
+      {
+        "title": {"ro": "Abordare digital-first","en": "Digital-by-Default Approach"},
+        "desc": {"ro": "Multe proceduri tradițional pe hârtie pot fi completate complet online: permise, înregistrări, certificări pentru viață și activitate economică transfrontalieră în UE.","en": "Many traditionally paper-based procedures can now be completed entirely online: permits, registrations, and certifications for living, working, or doing business across EU borders."}
+      }
+    ]
+  },
+
+  "footer": {
+    "publicInst": [
+      {"label":"Președinția României","url":"http://www.presidency.ro/"},
+      {"label":"Senatul României","url":"http://www.senat.ro/Start.aspx"},
+      {"label":"Camera Deputaților","url":"http://www.cdep.ro/"},
+      {"label":"Guvernul României","url":"http://www.gov.ro/"},
+      {"label":"Ministere","url":"https://www.gov.ro/ro/guvernul/organizare/ministere"},
+      {"label":"ADR","url":"https://www.adr.gov.ro/"}
+    ],
+    "euInst": [
+      {"label":"Comisia Europeană","url":"https://commission.europa.eu/index_en"},
+      {"label":"Consiliul UE","url":"http://www.consilium.europa.eu/"},
+      {"label":"Parlamentul European","url":"http://www.europarl.europa.eu/"},
+      {"label":"Solvit","url":"https://ec.europa.eu/solvit/index_ro.htm"},
+      {"label":"e-Justice","url":"https://e-justice.europa.eu/"},
+      {"label":"EUGO","url":"https://single-market-economy.ec.europa.eu/single-market/services/directive/points-single-contact_en"}
+    ],
+    "info": [
+      {"label":"Harta site","url":"https://roepas.ro/harta-site-ului"},
+      {"label":"Despre ROePAS","url":"https://roepas.ro/despre-portal"},
+      {"label":"Termeni și condiții","url":"https://roepas.ro/condi%C8%9Bii-de-utilizare"},
+      {"label":"GDPR","url":"https://roepas.ro/gdpr"},
+      {"label":"Politică cookies","url":"https://roepas.ro/politica-cookie"},
+      {"label":"Accesibilitate","url":"https://roepas.ro/accesibilitate"},
+      {"label":"Contact","url":"https://roepas.ro/public/contact"},
+      {"label":"Județe","url":"https://roepas.ro/judete"}
+    ]
+  },
+
+  "counties":["Alba","Arad","Argeș","Bacău","Bihor","Bistrița-Năsăud","Botoșani","Brașov","Brăila","București","Buzău","Caraș-Severin","Călărași","Cluj","Constanța","Covasna","Dâmbovița","Dolj","Galați","Giurgiu","Gorj","Harghita","Hunedoara","Ialomița","Iași","Ilfov","Maramureș","Mehedinți","Mureș","Neamț","Olt","Prahova","Satu Mare","Sălaj","Sibiu","Suceava","Teleorman","Timiș","Tulcea","Vaslui","Vâlcea","Vrancea"]
+}
+</script>
+
+<header>
+  <a class="logo" href="https://roepas.ro" target="_blank">
+    <div class="logo-mark">Re</div>
+    <span class="logo-text">Ro<span>ePAS</span></span>
+  </a>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="gSearch" placeholder="Caută în tot conținutul…" autocomplete="off">
+    <div class="sr-drop" id="srDrop"></div>
+  </div>
+  <div class="hdr-right">
+    <button class="lang-btn on" id="btnRO" onclick="setLang('ro')">RO</button>
+    <button class="lang-btn"    id="btnEN" onclick="setLang('en')">EN</button>
+    <div class="theme-pill">
+      <span class="theme-half on" id="hlLight" onclick="applyTheme('light')">☀</span>
+      <span class="theme-half"    id="hlDark"  onclick="applyTheme('dark')">☾</span>
+    </div>
+    <button class="quine-btn" onclick="exportQuine()">⬇ quine</button>
+  </div>
+</header>
+
+<div class="tabs" id="tabBar"></div>
+
+<!-- ── HOME ── -->
+<div class="section on" id="sec-home">
+  <div class="info-box">
+    <span class="info-box-icon">ℹ️</span>
+    <span id="aboutIntro"></span>
+  </div>
+  <div class="slabel" id="lbl-services">Catalog servicii</div>
+  <div class="grid" id="serviceGrid"></div>
+  <div class="slabel" id="lbl-find">Găsește instituție</div>
+  <div class="finder">
+    <select id="county"><option value="" id="optCounty">— Alege județ —</option></select>
+    <a class="finder-btn" id="finderBtn" href="https://roepas.ro/institutii" target="_blank">Caută →</a>
+  </div>
+  <div class="slabel" id="lbl-quick">Acces rapid</div>
+  <div class="lgrid" id="linksGrid"></div>
+  <div class="slabel" id="lbl-inst">Instituții recente</div>
+  <div class="ilist" id="instList"></div>
+  <div class="slabel" id="lbl-news">Anunțuri recente</div>
+  <div class="nlist" id="newsList"></div>
+</div>
+
+<!-- ── FAQ ── -->
+<div class="section" id="sec-faq">
+  <input class="faq-filter" id="faqFilter" placeholder="Filtrează întrebări…">
+  <div class="faq-list" id="faqList"></div>
+</div>
+
+<!-- ── GHIDURI ── -->
+<div class="section" id="sec-guides">
+  <div class="guide-list" id="guideList"></div>
+</div>
+
+<!-- ── DESPRE ── -->
+<div class="section" id="sec-about">
+  <div class="prose" id="aboutProse"></div>
+</div>
+
+<!-- ── SDG ── -->
+<div class="section" id="sec-sdg">
+  <div class="prose" id="sdgProse"></div>
+</div>
+
+<footer id="footerEl"></footer>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ─────────────────────────────────────────── */
+const DATA = JSON.parse(document.getElementById('__DATA__').textContent);
+let lang = DATA.lang || 'ro';
+let theme = DATA.activeTheme || 'light';
+
+/* ── Translations ── */
+const T = {
+  ro:{
+    home:'Acasă', faq:'Întrebări frecvente', guides:'Ghiduri', about:'Despre', sdg:'EU SDG',
+    services:'Catalog servicii', find:'Găsește instituție', quick:'Acces rapid',
+    inst:'Instituții recente', news:'Anunțuri recente',
+    county:'— Alege județ —', findBtn:'Caută →',
+    search:'Caută în tot conținutul…', ver:'v',
+    quineOk:'Fișier HTML descărcat!', arrow:'↗',
+    faqFilter:'Filtrează întrebări…',
+    aboutTitle:'Despre ROePAS', sdgTitle:'EU Single Digital Gateway',
+    sdgWhat:'Ce este EU Single Digital Gateway?', sdgFeatures:'Caracteristici principale',
+    guides_dl:'Vezi ghiduri PDF',
+    noResults:'Niciun rezultat.'
+  },
+  en:{
+    home:'Home', faq:'FAQ', guides:'Guides', about:'About', sdg:'EU SDG',
+    services:'Services catalog', find:'Find institution', quick:'Quick access',
+    inst:'Latest institutions', news:'Recent announcements',
+    county:'— Select county —', findBtn:'Search →',
+    search:'Search all content…', ver:'v',
+    quineOk:'HTML file downloaded!', arrow:'↗',
+    faqFilter:'Filter questions…',
+    aboutTitle:'About ROePAS', sdgTitle:'EU Single Digital Gateway',
+    sdgWhat:'What is the EU Single Digital Gateway?', sdgFeatures:'Key Features',
+    guides_dl:'View PDF Guides',
+    noResults:'No results.'
+  }
+};
+
+/* ── THEME ── */
+function applyTheme(t){
+  theme = t; DATA.activeTheme = t;
+  document.documentElement.dataset.theme = t;
+  document.getElementById('hlLight').classList.toggle('on', t==='light');
+  document.getElementById('hlDark').classList.toggle('on',  t==='dark');
+}
+
+/* ── LANG ── */
+function setLang(l){
+  lang = l; DATA.lang = l;
+  document.documentElement.lang = l;
+  document.getElementById('btnRO').classList.toggle('on', l==='ro');
+  document.getElementById('btnEN').classList.toggle('on', l==='en');
+  document.getElementById('gSearch').placeholder = T[l].search;
+  document.getElementById('faqFilter').placeholder = T[l].faqFilter;
+  document.getElementById('optCounty').textContent = T[l].county;
+  document.getElementById('finderBtn').textContent = T[l].findBtn;
+  buildTabs(); renderAll();
+}
+
+/* ── TABS ── */
+const TABS = ['home','faq','guides','about','sdg'];
+let activeTab = 'home';
+function buildTabs(){
+  const bar = document.getElementById('tabBar');
+  bar.innerHTML = TABS.map(id=>`
+    <button class="tab${id===activeTab?' on':''}" onclick="switchTab('${id}')">${T[lang][id]}</button>
+  `).join('');
+}
+function switchTab(id){
+  activeTab = id;
+  TABS.forEach(t=>{
+    document.getElementById('sec-'+t).classList.toggle('on', t===id);
+  });
+  buildTabs();
+}
+
+/* ── RENDER ALL ── */
+function renderAll(){
+  renderHome(); renderFaq(); renderGuides(); renderAbout(); renderSdg(); renderFooter();
+}
+
+/* ── HOME ── */
+function renderHome(){
+  // intro
+  const aboutText = DATA.about[lang].split('\n\n')[0];
+  document.getElementById('aboutIntro').textContent = aboutText;
+
+  // labels
+  ['services','find','quick','inst','news'].forEach(k=>{
+    const el = document.getElementById('lbl-'+k);
+    if(el){ el.childNodes[0].textContent = T[lang][k]+' '; }
+  });
+
+  // grid
+  document.getElementById('serviceGrid').innerHTML =
+    DATA.categories.map(c=>`
+      <a href="${c.url}" target="_blank" class="card ${c.color}">
+        <span class="card-icon">${c.icon}</span>
+        <div class="card-title">${c.label[lang]}</div>
+        <div class="card-desc">${c.desc[lang]}</div>
+        <span class="card-arr">${T[lang].arrow}</span>
+      </a>`).join('');
+
+  // quick links
+  document.getElementById('linksGrid').innerHTML =
+    DATA.quicklinks.map(l=>`
+      <a href="${l.url}" target="_blank" class="litem">
+        <span class="ldot"></span>${l.label[lang]}
+      </a>`).join('');
+
+  // institutions
+  document.getElementById('instList').innerHTML =
+    DATA.institutions.map((inst,i)=>`
+      <a href="${inst.url}" target="_blank" class="iitem">
+        <span class="inum">${String(i+1).padStart(2,'0')}</span>
+        ${inst.name}
+        <span class="iarr">↗</span>
+      </a>`).join('');
+
+  // news
+  document.getElementById('newsList').innerHTML =
+    DATA.news.map(n=>`
+      <a href="${n.url}" target="_blank" class="nitem">
+        <div class="ndate">${n.date}</div>
+        <div class="ntitle">${n.title[lang]}</div>
+      </a>`).join('');
+}
+
+/* ── FAQ ── */
+function renderFaq(filter=''){
+  const q = filter.trim().toLowerCase();
+  const items = DATA.faq.filter(f=>
+    !q || f.q[lang].toLowerCase().includes(q) || f.a[lang].toLowerCase().includes(q)
+  );
+  const list = document.getElementById('faqList');
+  if(!items.length){
+    list.innerHTML = `<div style="font-family:var(--mono);font-size:12px;color:var(--dim);padding:16px">${T[lang].noResults}</div>`;
+    return;
+  }
+  list.innerHTML = items.map((f,i)=>`
+    <div class="faq-item" id="fqi-${i}">
+      <div class="faq-q" onclick="toggleFaq('fqi-${i}')">${f.q[lang]}</div>
+      <div class="faq-body">${formatFaqBody(f.a[lang])}</div>
+    </div>`).join('');
+}
+function toggleFaq(id){
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+  const body = el.querySelector('.faq-body');
+  body.classList.toggle('show');
+}
+function formatFaqBody(text){
+  // Convert numbered list lines to <ol><li>
+  const lines = text.split(/\n/);
+  let html='', inList=false;
+  lines.forEach(line=>{
+    const m = line.match(/^(\d+)\.\s+(.*)/);
+    if(m){
+      if(!inList){html+='<ol>';inList=true;}
+      html+=`<li>${m[2]}</li>`;
+    } else {
+      if(inList){html+='</ol>';inList=false;}
+      if(line.trim()) html+=`<p>${line.trim()}</p>`;
+    }
+  });
+  if(inList) html+='</ol>';
+  return html;
+}
+document.getElementById('faqFilter').addEventListener('input', function(){
+  renderFaq(this.value);
+});
+
+/* ── GUIDES ── */
+function renderGuides(){
+  document.getElementById('guideList').innerHTML =
+    DATA.guides.map(g=>`
+      <div class="guide-card">
+        <span class="guide-icon">${g.icon}</span>
+        <div class="guide-body">
+          <div class="guide-title">${g.title[lang]}</div>
+          <div class="guide-desc">${g.desc[lang]}</div>
+          <div class="guide-links">
+            <a href="${g.pdfUrl}" target="_blank" class="guide-link">📄 ${T[lang].guides_dl}</a>
+          </div>
+        </div>
+      </div>`).join('');
+}
+
+/* ── ABOUT ── */
+function renderAbout(){
+  const paras = DATA.about[lang].split('\n\n');
+  document.getElementById('aboutProse').innerHTML =
+    `<h2>${T[lang].aboutTitle}</h2>` +
+    paras.map(p=>`<p>${p}</p>`).join('');
+}
+
+/* ── SDG ── */
+function renderSdg(){
+  const sd = DATA.sdg;
+  const features = sd.features.map(f=>`
+    <h3>${f.title[lang]}</h3><p>${f.desc[lang]}</p>`).join('');
+  document.getElementById('sdgProse').innerHTML =
+    `<h2>${T[lang].sdgTitle}</h2>
+     <h3>${T[lang].sdgWhat}</h3>
+     <p>${sd.what[lang]}</p>
+     <h3>${T[lang].sdgFeatures}</h3>
+     ${features}
+     <p><a href="https://europa.eu/youreurope/about/index_en.htm" target="_blank">europa.eu/youreurope ↗</a></p>`;
+}
+
+/* ── FOOTER ── */
+function renderFooter(){
+  const ft = DATA.footer;
+  const col = (head, links) => `
+    <div class="ft-col">
+      <div class="ft-head">${head}</div>
+      <div class="ft-links">
+        ${links.map(l=>`<a href="${l.url}" target="_blank">${l.label}</a>`).join('')}
+      </div>
+    </div>`;
+  const heads = lang==='ro'
+    ? ['Instituții publice','Instituții UE','Info']
+    : ['Public Institutions','EU Institutions','Info'];
+  document.getElementById('footerEl').innerHTML =
+    col(heads[0], ft.publicInst) +
+    col(heads[1], ft.euInst) +
+    col(heads[2], ft.info) +
+    `<div class="ft-copy">
+       <span>© 2026 <a href="https://roepas.ro" style="color:var(--acc);text-decoration:none">roepas.ro</a>
+       · Interfață compactă neoficială · ${T[lang].ver}${DATA.version}</span>
+       <span class="eu-badge">PNRR · EU SDG · Reg. (EU) 2018/1724</span>
+     </div>`;
+}
+
+/* ── COUNTIES ── */
+function initCounties(){
+  const sel = document.getElementById('county');
+  DATA.counties.forEach(c=>{
+    const o = document.createElement('option');
+    o.value=c; o.textContent=c; sel.appendChild(o);
+  });
+  sel.addEventListener('change',()=>{
+    const v = sel.value;
+    document.getElementById('finderBtn').href = v
+      ? 'https://roepas.ro/institutii?judet='+encodeURIComponent(v)
+      : 'https://roepas.ro/institutii';
+  });
+}
+
+/* ── GLOBAL SEARCH ── */
+function buildSearchIndex(){
+  const idx = [];
+  DATA.categories.forEach(c=>idx.push({text:(c.label[lang]+' '+c.desc[lang]).toLowerCase(), label:c.label[lang], url:c.url, badge:'Serviciu'}));
+  DATA.quicklinks.forEach(l=>idx.push({text:l.label[lang].toLowerCase(), label:l.label[lang], url:l.url, badge:'Link'}));
+  DATA.faq.forEach((f,i)=>idx.push({text:(f.q[lang]+' '+f.a[lang]).toLowerCase(), label:f.q[lang], tab:'faq', idx:i, badge:'FAQ'}));
+  DATA.guides.forEach(g=>idx.push({text:(g.title[lang]+' '+g.desc[lang]).toLowerCase(), label:g.title[lang], url:g.pdfUrl, badge:'Ghid'}));
+  DATA.institutions.forEach(inst=>idx.push({text:inst.name.toLowerCase(), label:inst.name, url:inst.url, badge:'Instituție'}));
+  DATA.news.forEach(n=>idx.push({text:n.title[lang].toLowerCase(), label:n.title[lang], url:n.url, badge:'Știre'}));
+  return idx;
+}
+let searchIdx = [];
+document.getElementById('gSearch').addEventListener('input', function(){
+  const q = this.value.trim().toLowerCase();
+  const drop = document.getElementById('srDrop');
+  if(!q){drop.classList.remove('show');return}
+  if(!searchIdx.length) searchIdx = buildSearchIndex();
+  const hits = searchIdx.filter(item=>item.text.includes(q)).slice(0,8);
+  if(!hits.length){drop.classList.remove('show');return}
+  drop.innerHTML = hits.map(h=>`
+    <div class="sr-item" onclick="${h.url?`window.open('${h.url}','_blank')`:`switchTab('${h.tab}');setTimeout(()=>{document.getElementById('gSearch').value='';document.getElementById('srDrop').classList.remove('show');renderFaq('');document.querySelectorAll('.faq-item')[${h.idx}]?.scrollIntoView({behavior:'smooth'});toggleFaq('fqi-${h.idx}')},100)`};document.getElementById('gSearch').value='';document.getElementById('srDrop').classList.remove('show')">
+      <span class="sr-badge">${h.badge}</span>${h.label}
+    </div>`).join('');
+  drop.classList.add('show');
+});
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.search-wrap'))
+    document.getElementById('srDrop').classList.remove('show');
+});
+
+/* ── QUINE EXPORT ── */
+function exportQuine(){
+  const dataEl = document.getElementById('__DATA__');
+  dataEl.textContent = '\n'+JSON.stringify(DATA, null, 2)+'\n';
+  const src = '<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+  const blob = new Blob([src],{type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'roepas-quine.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast(T[lang].quineOk);
+}
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+/* ── INIT ── */
+applyTheme(theme);
+initCounties();
+buildTabs();
+renderAll();
+searchIdx = buildSearchIndex();
+</script>
+</body>
+</html>
