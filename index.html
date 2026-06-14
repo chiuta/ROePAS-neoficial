@@ -44,6 +44,7 @@
 </style>
 
 <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; media-src 'self' blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:; script-src 'self' 'unsafe-inline' blob:; connect-src 'self'">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ROePAS · Interfață Compactă</title>
 <style>
@@ -462,7 +463,7 @@ footer{margin-top:32px;padding-top:12px;border-top:1px solid var(--border);displ
 </script>
 
 <header>
-  <a class="logo" href="https://roepas.ro" target="_blank">
+  <a class="logo" href="https://roepas.ro" target="_blank" rel="noopener noreferrer">
     <div class="logo-mark">Re</div>
     <span class="logo-text">Ro<span>ePAS</span></span>
   </a>
@@ -495,7 +496,7 @@ footer{margin-top:32px;padding-top:12px;border-top:1px solid var(--border);displ
   <div class="slabel" id="lbl-find">Găsește instituție</div>
   <div class="finder">
     <select id="county"><option value="" id="optCounty">— Alege județ —</option></select>
-    <a class="finder-btn" id="finderBtn" href="https://roepas.ro/institutii" target="_blank">Caută →</a>
+    <a class="finder-btn" id="finderBtn" href="https://roepas.ro/institutii" target="_blank" rel="noopener noreferrer">Caută →</a>
   </div>
   <div class="slabel" id="lbl-quick">Acces rapid</div>
   <div class="lgrid" id="linksGrid"></div>
@@ -623,7 +624,7 @@ function renderHome(){
   // grid
   document.getElementById('serviceGrid').innerHTML =
     DATA.categories.map(c=>`
-      <a href="${c.url}" target="_blank" class="card ${c.color}">
+      <a href="${c.url}" target="_blank" class="card ${c.color}" rel="noopener noreferrer">
         <span class="card-icon">${c.icon}</span>
         <div class="card-title">${c.label[lang]}</div>
         <div class="card-desc">${c.desc[lang]}</div>
@@ -633,14 +634,14 @@ function renderHome(){
   // quick links
   document.getElementById('linksGrid').innerHTML =
     DATA.quicklinks.map(l=>`
-      <a href="${l.url}" target="_blank" class="litem">
+      <a href="${l.url}" target="_blank" class="litem" rel="noopener noreferrer">
         <span class="ldot"></span>${l.label[lang]}
       </a>`).join('');
 
   // institutions
   document.getElementById('instList').innerHTML =
     DATA.institutions.map((inst,i)=>`
-      <a href="${inst.url}" target="_blank" class="iitem">
+      <a href="${inst.url}" target="_blank" class="iitem" rel="noopener noreferrer">
         <span class="inum">${String(i+1).padStart(2,'0')}</span>
         ${inst.name}
         <span class="iarr">↗</span>
@@ -649,7 +650,7 @@ function renderHome(){
   // news
   document.getElementById('newsList').innerHTML =
     DATA.news.map(n=>`
-      <a href="${n.url}" target="_blank" class="nitem">
+      <a href="${n.url}" target="_blank" class="nitem" rel="noopener noreferrer">
         <div class="ndate">${n.date}</div>
         <div class="ntitle">${n.title[lang]}</div>
       </a>`).join('');
@@ -709,7 +710,7 @@ function renderGuides(){
           <div class="guide-title">${g.title[lang]}</div>
           <div class="guide-desc">${g.desc[lang]}</div>
           <div class="guide-links">
-            <a href="${g.pdfUrl}" target="_blank" class="guide-link">📄 ${T[lang].guides_dl}</a>
+            <a href="${g.pdfUrl}" target="_blank" class="guide-link" rel="noopener noreferrer">📄 ${T[lang].guides_dl}</a>
           </div>
         </div>
       </div>`).join('');
@@ -734,7 +735,7 @@ function renderSdg(){
      <p>${sd.what[lang]}</p>
      <h3>${T[lang].sdgFeatures}</h3>
      ${features}
-     <p><a href="https://europa.eu/youreurope/about/index_en.htm" target="_blank">europa.eu/youreurope ↗</a></p>`;
+     <p><a href="https://europa.eu/youreurope/about/index_en.htm" target="_blank" rel="noopener noreferrer">europa.eu/youreurope ↗</a></p>`;
 }
 
 /* ── FOOTER ── */
@@ -744,7 +745,7 @@ function renderFooter(){
     <div class="ft-col">
       <div class="ft-head">${head}</div>
       <div class="ft-links">
-        ${links.map(l=>`<a href="${l.url}" target="_blank">${l.label}</a>`).join('')}
+        ${links.map(l=>`<a href="${l.url}" target="_blank" rel="noopener noreferrer">${l.label}</a>`).join('')}
       </div>
     </div>`;
   const heads = lang==='ro'
